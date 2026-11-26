@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @version      2.2.2
+ * @version      2.2.3
  * @package      GPX-TrackMap
  * @author       Perlimpinpin - https://www.perlimpinpin.fr
  * @copyright    Copyright (c) 2026 Perlimpin.fr All rights reserved
- * @license      GNU/GPL license: https://www.gnu.org/licenses/gpl.html
+ * @license      GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 namespace Perlimpinpin\Plugin\Content\Gpxtm\Extension;
@@ -75,7 +75,7 @@ final class Gpxtm extends CMSPlugin implements SubscriberInterface
 	private const LOWER_VALUES = ['Doclang', 'Unit', 'Trcolmod', 'Legende_fnm_lm', 'Shtrtabs'];
 
 	// Version : ajoutée à l'adresse des scripts pour que le navigateur recharge les fichiers modifiés
-	private const VERSION = '2.2.2';
+	private const VERSION = '2.2.3';
 
 	// Dossier des modèles personnalisés (hors du plugin : conservé lors des mises à jour et des réinstallations)
 	public const CUSTOM_TMPL = '/media/gpxtm/tmpl';

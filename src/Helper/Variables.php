@@ -3,7 +3,7 @@
 /**
  * @package      GPX-TrackMap
  * @copyright    Copyright (c) 2026 Perlimpin.fr All rights reserved
- * @license      GNU/GPL license: https://www.gnu.org/licenses/gpl.html
+ * @license      GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 namespace Perlimpinpin\Plugin\Content\Gpxtm\Helper;
