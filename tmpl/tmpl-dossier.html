@@ -1,0 +1,84 @@
+<style>
+/* Modèle « dossier » : la carte avec tous les fichiers GPX d'un dossier, puis la liste des traces */
+.gpxtm-dossier { width: %MAPWIDTH%; max-width: 100%; margin: 0 auto; }
+.gpxtm-dossier table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .85em; }
+.gpxtm-dossier th, .gpxtm-dossier td { padding: .3em .5em; border-bottom: 1px solid #ddd; text-align: left; }
+.gpxtm-dossier td.num, .gpxtm-dossier th.num { text-align: right; white-space: nowrap; }
+.gpxtm-dossier .sw { display: inline-block; width: 1.4em; height: .5em; border-radius: 2px; vertical-align: middle; }
+.gpxtm-dossier tfoot td { font-weight: 600; }
+</style>
+
+<div id="%MAPID%gpxviewer" class="gpxtm-dossier" data-base="%GPXBASEURL%">
+    <!-- Carte : toutes les traces du dossier, chacune avec sa couleur (variable Tcols) -->
+    <div id="%MAPID%" class="%GPXVIEW%" style="width:100%;height:%MAPHEIGHT%">
+        <noscript><p>Javascript requis pour afficher la carte.</p></noscript>
+    </div>
+    <!-- Liste des traces : remplie après la lecture des fichiers GPX -->
+    <div id="%MAPID%list"></div>
+    <!-- Graphiques éventuels (showelevation, showslope, showspeed, showcombined) -->
+    <div id="%MAPID%_hp" style="width:100%;height:%MAP_HP_HEIGHT%"></div>
+    <div id="%MAPID%_sp" style="width:100%;height:%MAP_SP_HEIGHT%"></div>
+    <div id="%MAPID%_vp" style="width:100%;height:%MAP_VP_HEIGHT%"></div>
+    <div id="%MAPID%_cp" style="width:100%;height:%MAP_CP_HEIGHT%"></div>
+</div>
+
+<script>
+(function () {
+    var mapEl = document.getElementById("%MAPID%");
+    var box   = document.getElementById("%MAPID%list");
+    var wrap  = document.getElementById("%MAPID%gpxviewer");
+    if (!mapEl || !box || !wrap) { return; }
+
+    mapEl.addEventListener("gpxtm:tracks", function (event) {
+        var G = window.GPXTM, tr = G.tr, tracks = event.detail.tracks;
+        var base = wrap.getAttribute("data-base") || "";
+        var total = 0, up = 0, down = 0;
+
+        function cell(tag, text, cls) {
+            var c = document.createElement(tag);
+            if (cls) { c.className = cls; }
+            if (text !== undefined) { c.textContent = text; }
+            return c;
+        }
+
+        var table = document.createElement("table");
+        var head  = document.createElement("thead"), hr = document.createElement("tr");
+        hr.appendChild(cell("th", ""));
+        hr.appendChild(cell("th", ""));
+        hr.appendChild(cell("th", tr("dist") + " (km)", "num"));
+        hr.appendChild(cell("th", tr("gain") + " (m)", "num"));
+        hr.appendChild(cell("th", "GPX"));
+        head.appendChild(hr); table.appendChild(head);
+
+        var body = document.createElement("tbody");
+        tracks.forEach(function (t, i) {
+            var tr_ = document.createElement("tr"), sw = cell("td"), span = cell("span", undefined, "sw");
+            span.style.background = t.color || "#888";
+            sw.appendChild(span); tr_.appendChild(sw);
+            tr_.appendChild(cell("td", t.name || t.file || ("#" + (i + 1))));
+            tr_.appendChild(cell("td", G.fmtNum(t.stats.dist, 2), "num"));
+            tr_.appendChild(cell("td", t.stats.gain !== undefined ? "+" + Math.round(t.stats.gain) + " / -" + Math.round(t.stats.loss) : "", "num"));
+            var td = cell("td"), a = document.createElement("a");
+            a.href = base + t.file.split("/").map(encodeURIComponent).join("/");
+            a.setAttribute("download", "");
+            a.textContent = t.file.split("/").pop();
+            td.appendChild(a); tr_.appendChild(td);
+            total += t.stats.dist; up += t.stats.gain || 0; down += t.stats.loss || 0;
+            body.appendChild(tr_);
+        });
+        table.appendChild(body);
+
+        // Total de toutes les traces
+        var foot = document.createElement("tfoot"), fr = document.createElement("tr");
+        fr.appendChild(cell("td", ""));
+        fr.appendChild(cell("td", tracks.length + " GPX"));
+        fr.appendChild(cell("td", G.fmtNum(total, 2), "num"));
+        fr.appendChild(cell("td", "+" + Math.round(up) + " / -" + Math.round(down), "num"));
+        fr.appendChild(cell("td", ""));
+        foot.appendChild(fr); table.appendChild(foot);
+
+        box.innerHTML = "";
+        box.appendChild(table);
+    });
+})();
+</script>

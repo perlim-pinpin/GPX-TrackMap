@@ -1,0 +1,28 @@
+<style>
+/* Modèle « graphiques sur le côté » : la carte à gauche, les graphiques à droite.
+   Sur un petit écran, les graphiques passent sous la carte. */
+.gpxtm-cote { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; margin: 0 auto; width: 100%; }
+.gpxtm-cote-map { flex: 2 1 420px; min-width: 0; }
+.gpxtm-cote-side { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.gpxtm-cote-side:not(:has(> div:not([hidden]))) { display: none; }
+</style>
+
+<!-- Bouton de téléchargement du GPX (et avertissement) : option « Télécharger le gpx » -->
+<div id="%MAPID%gpxdown" style="margin-bottom:8px;">%GPXDOWN%</div>
+
+<div id="%MAPID%gpxviewer" class="gpxtm-cote">
+    <!-- Colonne de gauche : la carte (largeur imposée par le modèle, la variable map_width n'est pas utilisée) -->
+    <div class="gpxtm-cote-map">
+        <div id="%MAPID%" class="%GPXVIEW%" style="width:100%;height:%MAPHEIGHT%">
+            <noscript><p>Javascript requis pour afficher la carte.</p></noscript>
+        </div>
+    </div>
+    <!-- Colonne de droite : les graphiques demandés (showelevation, showslope, showspeed, showcombined) -->
+    <div class="gpxtm-cote-side">
+        <div id="%MAPID%_hp" style="width:100%;height:%MAP_HP_HEIGHT%"></div>
+        <div id="%MAPID%_sp" style="width:100%;height:%MAP_SP_HEIGHT%"></div>
+        <div id="%MAPID%_vp" style="width:100%;height:%MAP_VP_HEIGHT%"></div>
+        <div id="%MAPID%_cp" style="width:100%;height:%MAP_CP_HEIGHT%"></div>
+    </div>
+</div>
+<!-- Les photos (showimages, geoimg) sont ajoutées par le plugin sous ce bloc -->

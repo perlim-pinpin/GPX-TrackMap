@@ -1,0 +1,39 @@
+GPX-TrackMap - Licences
+=======================
+
+1. GPX-TrackMap (code du plugin : PHP, JavaScript, CSS, modèles)
+   Copyright (c) 2026 Perlimpin.fr - https://www.perlimpinpin.fr
+   Licence : GNU General Public License, version 2 ou ultérieure
+   https://www.gnu.org/licenses/gpl-2.0.html
+
+   Le moteur JavaScript du plugin (js/gpxtm.js, js/gpxtm-charts.js) a été écrit pour GPX-TrackMap.
+
+2. Leaflet 1.9.4 (dossier vendor/leaflet)
+   Copyright (c) 2010-2023, Volodymyr Agafonkin
+   Copyright (c) 2010-2011, CloudMade
+   Licence : BSD 2-Clause
+
+   Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+   the following conditions are met:
+   1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
+      following disclaimer.
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+      following disclaimer in the documentation and/or other materials provided with the distribution.
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+   PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+   DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+3. Icônes de waypoints (dossier icons)
+   SJJB Map Icons / Open SVG Map Icons (https://github.com/twain47/Open-SVG-Map-Icons, http://www.sjjb.co.uk/mapicons/)
+   Licence : Creative Commons Public Domain Dedication (domaine public) - voir icons/LICENSE.txt et icons/SOURCES.txt.
+   Aucune obligation de citation ; la source est indiquée par courtoisie.
+
+4. Fonds de carte et calques (non inclus dans le plugin, chargés depuis leurs serveurs)
+   OpenStreetMap (ODbL), OpenTopoMap (CC-BY-SA), BKG TopPlusOpen (dl-de/by-2-0), Esri World Imagery,
+   IGN / Geoplateforme, OpenSeaMap, Waymarked Trails (CC-BY-SA).
+   Chaque fournisseur a ses propres conditions d'utilisation : l'administrateur du site s'engage à les respecter
+   (option « Serveurs » du plugin) ; les mentions d'attribution sont affichées sur la carte.

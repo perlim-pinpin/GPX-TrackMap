@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="content" method="upgrade">
+	<name>PLG_CONTENT_GPXTM</name>
+	<author>Perlimpinpin</author>
+	<creationDate>2026-11-25</creationDate>
+	<copyright>Copyright (c) 2026 Perlimpin.fr All rights reserved</copyright>
+	<license>GNU/GPL v2 ou ultérieure</license>
+	<authorEmail>contact@perlimpinpin.fr</authorEmail>
+	<authorUrl>https://www.perlimpinpin.fr</authorUrl>
+	<version>2.2.2</version>
+	<description>PLG_CONTENT_GPXTM_DESCRIPTION</description>
+	<php_minimum>8.3</php_minimum>
+	<changelogurl>https://www.perlimpinpin.fr/media/GPX-TrackMap/changelog.xml</changelogurl>
+	<!-- Espace de noms : doit correspondre à celui de la classe et du provider -->
+	<scriptfile>script.php</scriptfile>
+	<namespace path="src">Perlimpinpin\Plugin\Content\Gpxtm</namespace>
+	<files>
+		<folder>services</folder>
+		<folder plugin="gpxtm">src</folder>
+		<folder>vendor</folder>
+		<folder>css</folder>
+		<folder>icons</folder>
+		<folder>js</folder>
+		<folder>tmpl</folder>
+		<folder>language</folder>
+		<file>gpxtm.css</file>
+		<file>LICENSE.txt</file>
+	</files>
+	<languages folder="language">
+		<language tag="de-DE">de-DE/de-DE.plg_content_gpxtm.ini</language>
+		<language tag="de-DE">de-DE/de-DE.plg_content_gpxtm.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_content_gpxtm.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_content_gpxtm.sys.ini</language>
+		<language tag="es-ES">es-ES/es-ES.plg_content_gpxtm.ini</language>
+		<language tag="es-ES">es-ES/es-ES.plg_content_gpxtm.sys.ini</language>
+		<language tag="fr-FR">fr-FR/fr-FR.plg_content_gpxtm.ini</language>
+		<language tag="fr-FR">fr-FR/fr-FR.plg_content_gpxtm.sys.ini</language>
+		<language tag="nl-NL">nl-NL/nl-NL.plg_content_gpxtm.ini</language>
+		<language tag="nl-NL">nl-NL/nl-NL.plg_content_gpxtm.sys.ini</language>
+	</languages>
+	<!-- Mises à jour automatiques -->
+	<updateservers>
+		<server type="extension" priority="1" name="GPX-TrackMap">https://www.perlimpinpin.fr/media/GPX-TrackMap/updates.xml</server>
+	</updateservers>
+	<config>
+		<fields name="params">
+			<!-- Onglet « Variables » : liste des variables utilisables dans une balise -->
+			<fieldset name="variables" label="GPXTM_PLG_VARIABLES" addfieldprefix="Perlimpinpin\Plugin\Content\Gpxtm\Field">
+				<field name="javascriptvars" type="text" size="80" default="" filter="raw" label="GPXTM_PLG_JS_VARS" description="GPXTM_PLG_JS_VARS_DESC" />
+				<field name="hr_vardefaults" type="spacer" hr="true" />
+				<field name="variables_doc" type="Variables" hiddenLabel="true" filter="unset" />
+			</fieldset>
+
+			<!-- Dimensions et aspect de la carte -->
+			<fieldset name="layout" label="GPXTM_PLG_LAYOUT" description="GPXTM_PLG_LAYOUT_DESC">
+				<field name="sep_mapsize" type="spacer" label="GPXTM_SEP_MAPSIZE" class="fw-bold fs-5" />
+				<field name="map_width" type="text" default="100%" label="GPXTM_PLG_MW" />
+				<field name="map_height" type="text" default="400px" label="GPXTM_PLG_MH" />
+				<field name="hr_graphsize" type="spacer" hr="true" />
+				<field name="sep_graphsize" type="spacer" label="GPXTM_SEP_GRAPHSIZE" class="fw-bold fs-5" />
+				<field name="hpmap_width" type="text" default="100%" label="GPXTM_PLG_MWL" />
+				<field name="hpmap_height" type="text" default="150px" label="GPXTM_PLG_MHL" />
+				<field name="spmap_width" type="text" default="100%" label="GPXTM_PLG_SPW" />
+				<field name="spmap_height" type="text" default="150px" label="GPXTM_PLG_SPH" />
+				<field name="vpmap_width" type="text" default="100%" label="GPXTM_PLG_VPW" />
+				<field name="vpmap_height" type="text" default="150px" label="GPXTM_PLG_VPH" />
+				<field name="cpmap_width" type="text" default="100%" label="GPXTM_PLG_CPW" />
+				<field name="cpmap_height" type="text" default="250px" label="GPXTM_PLG_CPH" />
+				<field name="hr_trackstyle" type="spacer" hr="true" />
+				<field name="sep_trackstyle" type="spacer" label="GPXTM_SEP_TRACKSTYLE" class="fw-bold fs-5" />
+				<field name="trackwidth" type="number" default="0" min="0" max="20" step="1" label="GPXTM_PLG_TRACKWIDTH" description="GPXTM_PLG_TRACKWIDTH_DESC" />
+				<field name="profilecolor" type="color" default="#ff0000" label="GPXTM_PLG_PROFILECOLOR" description="GPXTM_PLG_PROFILECOLOR_DESC" />
+				<field name="satprofile" type="number" default="0.3" min="0" max="1" step="0.1" label="GPXTM_PLG_PROFIEL_VERZADIGING" description="GPXTM_PLG_PROFIEL_VERZADIGING_DESC" />
+				<field name="hr_mapitems" type="spacer" hr="true" />
+				<field name="sep_mapitems" type="spacer" label="GPXTM_SEP_MAPITEMS" class="fw-bold fs-5" />
+				<field name="phpLegende" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_PLG_LEGEND" description="GPXTM_PLG_LEGEND_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="phpFullscreenbutton" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_FULLSCREEN" description="GPXTM_PLG_FULLSCREEN_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="usenavigator" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_PLG_NAV" description="GPXTM_PLG_NAV_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="showstart" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_START" description="GPXTM_PLG_START_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="showfinish" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_FINISH" description="GPXTM_PLG_FINISH_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="recenter" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_RECENTER">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="hr_trackinfo" type="spacer" hr="true" />
+				<field name="sep_trackinfo" type="spacer" label="GPXTM_SEP_TRACKINFO" class="fw-bold fs-5" />
+				<field name="trackover" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_TRACKOVER">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="legende_info" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_LEGENDE_INFO">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrcmt" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRCMT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrdesc" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRDESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrtges" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRTGES">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrtgeswob" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRTGESWOB">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrvmitt" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRVMITT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrvmittwob" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRVMITTWOB">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrvmittpace" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRVMITTPACE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrvmittpacewob" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRVMITTPACEWOB">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="hr_trackbar" type="spacer" hr="true" />
+				<field name="sep_trackbar" type="spacer" label="GPXTM_SEP_TRACKBAR" class="fw-bold fs-5" />
+				<field name="showtrackinfo" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_TRACKINFO" description="GPXTM_PLG_TRACKINFO_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_name" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_NAME">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_cmt" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_CMT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_desc" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_dist" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_DIST">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_gain" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_GAIN">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_alt" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_ALT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_slope" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_SLOPE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_date" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_DATE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_time" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_TIME">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_moving" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_MOVING">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_speed" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_SPEED">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_speedmov" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_SPEEDMOV">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_pace" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_PACE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_pacemov" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_BAR_PACEMOV">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_hr" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_HR">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_cad" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_CAD">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="bar_temp" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_BAR_TEMP">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="hr_trackbubble" type="spacer" hr="true" />
+				<field name="sep_trackbubble" type="spacer" label="GPXTM_SEP_TRACKBUBBLE" class="fw-bold fs-5" />
+				<field name="trackclick" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_TRACKCLICK">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="showclickalt" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_CLICKALT" description="GPXTM_PLG_CLICKALT_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrname" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRNAME">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrx" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRX">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrt" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrtwob" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRTWOB">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrrr" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRRR">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrs" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRS">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrv" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRV">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrpace" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRPACE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrhr" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRHR">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrcad" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRCAD">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtratemp" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHTRATEMP">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shtrlatlon" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHTRLATLON">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+
+			<!-- Paramètres 1 (traités côté PHP) -->
+			<fieldset name="phpcontrols" label="GPXTM_PLG_PHPCONTROLS" addfieldprefix="Perlimpinpin\Plugin\Content\Gpxtm\Field">
+				<field name="sep_files" type="spacer" label="GPXTM_SEP_FILES" class="fw-bold fs-5" />
+				<field name="gpxpath" type="text" default="gpx" label="GPXTM_PLG_GP" description="GPXTM_PLG_GP_DESC" />
+				<field name="tmpl" type="Template" default="tmpl-complet.html" label="GPXTM_PLG_TMPL" description="GPXTM_PLG_TMPL_DESC" />
+				<field name="tmpl_cote_doc" type="Info" part="tmpl_cote_doc" hiddenLabel="true" filter="unset" />
+				<field name="tmpl_dossier_doc" type="Info" part="tmpl_dossier_doc" hiddenLabel="true" filter="unset" />
+				<field name="hr_graphs" type="spacer" hr="true" />
+				<field name="sep_graphs" type="spacer" label="GPXTM_SEP_GRAPHS" class="fw-bold fs-5" />
+				<field name="showelevation" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_ELE" description="GPXTM_PLG_ELE_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="showslope" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_PLG_SLOPE" description="GPXTM_PLG_SLOPE_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="showspeed" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_PLG_SPEED" description="GPXTM_PLG_SPEED_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="showcombined" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_PLG_COMBINED" description="GPXTM_PLG_COMBINED_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="combcurves" type="checkboxes" default="h,s,v" label="GPXTM_PLG_COMBCURVES" description="GPXTM_PLG_COMBCURVES_DESC" showon="showcombined:1">
+					<option value="h">GPXTM_CP_ELE</option>
+					<option value="s">GPXTM_CP_SLOPE</option>
+					<option value="v">GPXTM_CP_SPEED</option>
+				</field>
+				<field name="cpcolor_h" type="color" default="" keywords="none" label="GPXTM_PLG_CPCOLOR_H" description="GPXTM_PLG_CPCOLOR_DESC" showon="showcombined:1" />
+				<field name="cpline_h" type="list" default="solid" label="GPXTM_PLG_CPLINE_H" description="GPXTM_PLG_CPLINE_DESC" showon="showcombined:1">
+					<option value="solid">GPXTM_LINE_SOLID</option>
+					<option value="dashed">GPXTM_LINE_DASHED</option>
+					<option value="dotted">GPXTM_LINE_DOTTED</option>
+					<option value="dashdot">GPXTM_LINE_DASHDOT</option>
+					<option value="longdash">GPXTM_LINE_LONGDASH</option>
+				</field>
+				<field name="cpcolor_s" type="color" default="" keywords="none" label="GPXTM_PLG_CPCOLOR_S" description="GPXTM_PLG_CPCOLOR_DESC" showon="showcombined:1" />
+				<field name="cpline_s" type="list" default="dashed" label="GPXTM_PLG_CPLINE_S" description="GPXTM_PLG_CPLINE_DESC" showon="showcombined:1">
+					<option value="solid">GPXTM_LINE_SOLID</option>
+					<option value="dashed">GPXTM_LINE_DASHED</option>
+					<option value="dotted">GPXTM_LINE_DOTTED</option>
+					<option value="dashdot">GPXTM_LINE_DASHDOT</option>
+					<option value="longdash">GPXTM_LINE_LONGDASH</option>
+				</field>
+				<field name="cpcolor_v" type="color" default="" keywords="none" label="GPXTM_PLG_CPCOLOR_V" description="GPXTM_PLG_CPCOLOR_DESC" showon="showcombined:1" />
+				<field name="cpline_v" type="list" default="dotted" label="GPXTM_PLG_CPLINE_V" description="GPXTM_PLG_CPLINE_DESC" showon="showcombined:1">
+					<option value="solid">GPXTM_LINE_SOLID</option>
+					<option value="dashed">GPXTM_LINE_DASHED</option>
+					<option value="dotted">GPXTM_LINE_DOTTED</option>
+					<option value="dashdot">GPXTM_LINE_DASHDOT</option>
+					<option value="longdash">GPXTM_LINE_LONGDASH</option>
+				</field>
+				<field name="hr_colors" type="spacer" hr="true" />
+				<field name="sep_colors" type="spacer" label="GPXTM_SEP_COLORS" class="fw-bold fs-5" />
+				<field name="difcolors" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_DIFCOLORS" description="GPXTM_PLG_DIFCOLORS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="hr_download" type="spacer" hr="true" />
+				<field name="sep_download" type="spacer" label="GPXTM_SEP_DOWNLOAD" class="fw-bold fs-5" />
+				<field name="downloadgpx" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_DOW" description="GPXTM_PLG_DOW_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="downloadtext" type="text" default="" label="GPXTM_PLG_DOWNTEXT" description="GPXTM_PLG_DOWNTEXT_DESC" showon="downloadgpx:1" />
+				<field name="downloadcolor" type="color" default="#1a73e8" label="GPXTM_PLG_DOWNCOLOR" description="GPXTM_PLG_DOWNCOLOR_DESC" showon="downloadgpx:1" />
+				<field name="disclaimer" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_MET_DISCLAIMER">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+
+			<fieldset name="waypoints" label="GPXTM_PLG_WAYPOINTS" addfieldprefix="Perlimpinpin\Plugin\Content\Gpxtm\Field">
+				<field name="waypoints_doc" type="Info" part="waypoints_doc" hiddenLabel="true" filter="unset" />
+				<field name="hr_wpicon" type="spacer" hr="true" />
+				<field name="sep_wpicon" type="spacer" label="GPXTM_SEP_WPICON" class="fw-bold fs-5" />
+				<field name="defaulticon" type="Icon" default="" label="GPXTM_PLG_DEFAULTICON" description="GPXTM_PLG_DEFAULTICON_DESC" />
+				<field name="hr_wpoptions" type="spacer" hr="true" />
+				<field name="sep_wpoptions" type="spacer" label="GPXTM_SEP_WPOPTIONS" class="fw-bold fs-5" />
+				<field name="shwpname" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHWPNAME">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shwpcmt" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_OPT_SHWPCMT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shwpdesc" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHWPDESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shwptime" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHWPTIME">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shwplatlon" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHWPLATLON">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="shwptooltip" type="radio" layout="joomla.form.field.radio.switcher" default="0" filter="integer" label="GPXTM_OPT_SHWPTOOLTIP">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="hr_wpicons" type="spacer" hr="true" />
+				<field name="sep_wpicons" type="spacer" label="GPXTM_SEP_WPICONS" class="fw-bold fs-5" />
+				<field name="waypoints_icons" type="Info" part="waypoints_icons" hiddenLabel="true" filter="unset" />
+			</fieldset>
+
+			<fieldset name="photos" label="GPXTM_PLG_PHOTOS" addfieldprefix="Perlimpinpin\Plugin\Content\Gpxtm\Field">
+				<field name="photos_doc" type="Info" part="photos_doc" hiddenLabel="true" filter="unset" />
+				<field name="hr_photosopt" type="spacer" hr="true" />
+				<field name="sep_photosopt" type="spacer" label="GPXTM_SEP_PHOTOSOPT" class="fw-bold fs-5" />
+				<field name="gpximagepath" type="text" default="gpx" label="GPXTM_PLG_GPI" description="GPXTM_PLG_GPI_DESC" />
+				<field name="showimages" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_SHI" description="GPXTM_PLG_SHI_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="geoimg" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_GEOIMG" description="GPXTM_PLG_GEOIMG_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+
+			<!-- Serveurs de cartes -->
+			<fieldset name="mapcontrols" label="GPXTM_PLG_MAPCONTROLS">
+				<field name="phpBestaetigung" type="radio" layout="joomla.form.field.radio.switcher" default="1" filter="integer" label="GPXTM_PLG_TOESTEMMING" description="GPXTM_PLG_TOESTEMMING_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="maplang" type="list" default="auto" label="GPXTM_PLG_MAPLANG" description="GPXTM_PLG_MAPLANG_DESC">
+					<option value="auto">GPXTM_PLG_MAPLANG_AUTO</option>
+					<option value="fr-FR">Français</option>
+					<option value="en-GB">English</option>
+					<option value="de-DE">Deutsch</option>
+					<option value="nl-NL">Nederlands</option>
+					<option value="es-ES">Español</option>
+				</field>
+				<field name="hr_consent" type="spacer" hr="true" />
+				<field name="mapstyle" type="list" default="1" label="GPXTM_PLG_MAPSTYLE">
+					<option value="0">0 - Satellit</option>
+					<option value="1">1 - OSM</option>
+					<option value="2">2 - OSMDE</option>
+					<option value="3">3 - Open Topo</option>
+					<option value="4">4 - TopPlusOpen</option>
+					<option value="5">5 - IGN Satellite</option>
+					<option value="6">6 - IGN Plan</option>
+					<option value="7">7 - IGN Topo</option>
+					<option value="8">GPXTM_MAP_NOMAP_8</option>
+				</field>
+				<field name="maps" type="checkboxes" default="0,1,2,3,4,5,6,7,8,9,10,11" label="GPXTM_PLG_MAPS" description="GPXTM_PLG_MAPS_DESC">
+					<option value="0">0 - Satellit</option>
+					<option value="1">1 - OSM</option>
+					<option value="2">2 - OSMDE</option>
+					<option value="3">3 - Open Topo</option>
+					<option value="4">4 - TopPlusOpen</option>
+					<option value="5">5 - IGN Satellite</option>
+					<option value="6">6 - IGN Plan</option>
+					<option value="7">7 - IGN Topo</option>
+					<option value="8">GPXTM_MAP_NOMAP_8</option>
+					<option value="9">9 - Open Sea</option>
+					<option value="10">10 - Hiking</option>
+					<option value="11">11 - Cycling</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

@@ -1,0 +1,90 @@
+<style>
+/* Modèle complet : informations de la trace, carte et tous les graphiques */
+.gpxtm-trackinfo { display: flex; flex-direction: column; gap: .3em; margin: 0 auto .5em; width: %MAPWIDTH%; max-width: 100%; font-size: .8em; }
+.gpxtm-trackinfo[hidden] { display: none; }
+.gpxtm-trk { display: flex; flex-wrap: wrap; align-items: center; border-left: 4px solid #888; padding: .15em .6em; }
+.gpxtm-titem { padding-right: 1.2em; white-space: nowrap; }
+</style>
+
+<!-- Bouton de téléchargement du GPX (et avertissement) : option « Télécharger le gpx » -->
+<div id="%MAPID%gpxdown" style="margin-left:auto;margin-right:auto;margin-bottom:8px;width:%MAPWIDTH%;">
+    %GPXDOWN%
+</div>
+
+<!-- Informations de chaque trace au-dessus de la carte : option « Informations de la trace au-dessus de la carte » et ses éléments (data-items) -->
+<div id="%MAPID%trackinfo" class="gpxtm-trackinfo"></div>
+
+<div id="%MAPID%gpxviewer" style="margin-left:auto;margin-right:auto;">
+    <!-- Carte -->
+    <div id="%MAPID%" class="%GPXVIEW%" style="margin-left:auto;margin-right:auto;width:%MAPWIDTH%;height:%MAPHEIGHT%">
+        <noscript><p>Javascript requis pour afficher la carte.</p></noscript>
+    </div>
+    <!-- Graphique du dénivelé : option « Montrer le graphique du dénivelé » (showelevation) -->
+    <div id="%MAPID%_hp" style="margin-left:auto;margin-right:auto;width:%MAP_HP_WIDTH%;height:%MAP_HP_HEIGHT%"></div>
+    <!-- Graphique de la pente : option « Montrer le graphique de la pente » (showslope) -->
+    <div id="%MAPID%_sp" style="margin-left:auto;margin-right:auto;width:%MAP_SP_WIDTH%;height:%MAP_SP_HEIGHT%"></div>
+    <!-- Graphique de la vitesse : option « Montrer le graphique de la vitesse » (showspeed) -->
+    <div id="%MAPID%_vp" style="margin-left:auto;margin-right:auto;width:%MAP_VP_WIDTH%;height:%MAP_VP_HEIGHT%"></div>
+    <!-- Graphique combiné : option « Montrer le graphique combiné » (showcombined) -->
+    <div id="%MAPID%_cp" style="margin-left:auto;margin-right:auto;width:%MAP_CP_WIDTH%;height:%MAP_CP_HEIGHT%"></div>
+</div>
+<!-- Les photos (showimages, geoimg) sont ajoutées par le plugin sous ce bloc -->
+
+<script>
+(function () {
+    // Éléments de cette carte (le plugin remplace %MAPID% par un identifiant unique)
+    var mapEl = document.getElementById("%MAPID%");
+    var box   = document.getElementById("%MAPID%trackinfo");
+    if (!mapEl || !box) { return; } // informations de la trace désactivées
+
+    // Les traces sont lues (événement gpxtm:tracks) : on affiche leurs informations selon les variables de la balise
+    mapEl.addEventListener("gpxtm:tracks", function (event) {
+        var G = window.GPXTM, tr = G.tr;
+        var items = String(box.getAttribute("data-items") || "dist,gain,alt,slope,date,hr,cad,temp").split(",");
+        function on(key) { return items.indexOf(key) !== -1; }
+        box.innerHTML = "";
+
+        event.detail.tracks.forEach(function (t) {
+            var s = t.stats, line = document.createElement("div");
+            line.className = "gpxtm-trk";
+            line.style.borderLeftColor = t.color || "#888";                         // même couleur que la trace
+
+            function item(text, bold) {
+                var e = document.createElement(bold ? "strong" : "span");
+                e.className = "gpxtm-titem";
+                e.textContent = text;
+                line.appendChild(e);
+            }
+
+            // Nom, commentaire et description
+            if (on("name") && t.name) item(t.name, true);
+            if (on("cmt") && t.cmt) item(t.cmt);
+            if (on("desc") && t.desc) item(t.desc);
+
+            // Distance et dénivelé cumulé, altitude et pente minimales et maximales
+            if (on("dist")) item(tr("dist") + " : " + G.fmtNum(s.dist, 2) + " km");
+            if (on("gain") && s.gain !== undefined) item(tr("gain") + " : +" + Math.round(s.gain) + " m / -" + Math.round(s.loss) + " m");
+            if (on("alt") && s.hmin !== undefined) item(tr("alt") + " : " + Math.round(s.hmin) + " / " + Math.round(s.hmax) + " m");
+            if (on("slope") && s.smin !== undefined) item(tr("slope") + " : " + G.fmtNum(s.smin, 1) + " % / " + G.fmtNum(s.smax, 1) + " %");
+
+            // Date du trajet et durées
+            if (on("date") && s.t0 !== undefined) item(tr("start") + " : " + G.fmtDate(s.t0));
+            if (on("time") && s.dur !== undefined) item(tr("dur") + " : " + G.fmtDur(s.dur));
+            if (on("moving") && s.durMoving !== undefined) item(tr("moving") + " : " + G.fmtDur(s.durMoving));
+
+            // Vitesses moyennes et allures
+            if (on("speed") && s.vavg !== undefined) item(tr("avgspeed") + " : " + G.fmtNum(s.vavg, 1) + " km/h");
+            if (on("speedmov") && s.vavgMoving !== undefined) item(tr("avgspeedmov") + " : " + G.fmtNum(s.vavgMoving, 1) + " km/h");
+            if (on("pace") && s.vavg > 0) item(tr("avgpace") + " : " + G.fmtNum(60 / s.vavg, 1) + " min/km");
+            if (on("pacemov") && s.vavgMoving > 0) item(tr("avgpacemov") + " : " + G.fmtNum(60 / s.vavgMoving, 1) + " min/km");
+
+            // Pouls, cadence et température moyens
+            if (on("hr") && s.hrAvg !== undefined) item("Ø " + tr("hr") + " : " + Math.round(s.hrAvg));
+            if (on("cad") && s.cadAvg !== undefined) item("Ø " + tr("cad") + " : " + Math.round(s.cadAvg));
+            if (on("temp") && s.atempAvg !== undefined) item("Ø " + tr("temp") + " : " + Math.round(s.atempAvg) + " °C");
+
+            if (line.childNodes.length) box.appendChild(line);
+        });
+    });
+})();
+</script>
