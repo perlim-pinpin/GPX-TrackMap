@@ -43,14 +43,66 @@
 		var g = st.o.gcols;
 		return (g && g.length && g[i % g.length]) || tr.color || '#f00';
 	}
+	// Couleurs : conversion d'une couleur CSS en [r, g, b], éclaircissement (intensité) et lecture des valeurs
+	var probe = (function () { try { return document.createElement('canvas').getContext('2d'); } catch (e) { return null; } })();
+	function rgbOf(col) {
+		var v = '#000000';
+		if (probe) { probe.fillStyle = '#000000'; probe.fillStyle = col; v = String(probe.fillStyle); }
+		if (v.charAt(0) === '#' && v.length >= 7) { return [parseInt(v.substr(1, 2), 16), parseInt(v.substr(3, 2), 16), parseInt(v.substr(5, 2), 16)]; }
+		var m = /(\d+)[, ]+(\d+)[, ]+(\d+)/.exec(v);
+		return m ? [+m[1], +m[2], +m[3]] : [255, 0, 0];
+	}
+	// t = 0 : couleur très claire ; t = 1 : couleur pleine
+	function tint(rgb, t) {
+		var f = 0.2 + 0.8 * Math.max(0, Math.min(1, t));
+		return 'rgb(' + rgb.map(function (c) { return Math.round(255 - (255 - c) * f); }).join(',') + ')';
+	}
+	function mean(a, b) {
+		var ok1 = typeof a === 'number' && isFinite(a), ok2 = typeof b === 'number' && isFinite(b);
+		return ok1 && ok2 ? (a + b) / 2 : (ok1 ? a : (ok2 ? b : undefined));
+	}
+	// Étendue des valeurs d'une donnée sur les traces affichées (valeur absolue pour la pente)
+	function span(st, k) {
+		var mn = Infinity, mx = -Infinity;
+		st.tracks.forEach(function (t) {
+			t.pts.forEach(function (p) {
+				var v = p[k];
+				if (typeof v !== 'number' || !isFinite(v)) { return; }
+				if (k === 's') { v = Math.abs(v); }
+				if (v < mn) { mn = v; } if (v > mx) { mx = v; }
+			});
+		});
+		return mn <= mx ? { min: mn, max: mx } : { min: 0, max: 1 };
+	}
+	// Couleur d'un segment [a, b] de la courbe k : null = couleur unie (comportement par défaut)
+	function segmentColor(st, k, col) {
+		var o = st.inst.options || {}, sc = st.inst.scale, G = global.GPXTM;
+		if (o.trcolgraph && sc && G) {
+			return function (a, b) {
+				var v = mean(a[sc.key], b[sc.key]);
+				return v === undefined ? col : G.scaleColor((v - sc.min) / ((sc.max - sc.min) || 1));
+			};
+		}
+		if (o.gint) {
+			var ik = o.gint === 'own' ? k : o.gint, r = span(st, ik), base = rgbOf(col);
+			return function (a, b) {
+				var v = mean(a[ik], b[ik]);
+				if (v === undefined) { return tint(base, 0.5); }
+				if (ik === 's') { v = Math.abs(v); }
+				return tint(base, (v - r.min) / ((r.max - r.min) || 1));
+			};
+		}
+		return null;
+	}
+
 	function has(tr, k) { return !!(tr.has && tr.has[k]); }
 	function name(st, tr, i) { return tr.name || tr.file || ('#' + (i + 1)); }
 
 	function init(box, inst, o) {
-		var st = { box: box, inst: inst, tracks: inst.tracks, o: o, follow: -1, on: {}, avail: {} };
+		var st = { box: box, inst: inst, tracks: inst.pickMode ? (inst.shown || []) : inst.tracks, o: o, follow: -1, on: {}, avail: {} };
 		var curves = (o.curves && o.curves.length) ? o.curves : ['h'];
 		KEYS.forEach(function (k) {
-			st.avail[k] = st.tracks.some(function (t) { return has(t, k); });
+			st.avail[k] = inst.tracks.some(function (t) { return has(t, k); });
 			st.on[k] = curves.indexOf(k) !== -1;
 		});
 		box.innerHTML = '';
@@ -79,7 +131,7 @@
 		}
 
 		// Plusieurs traces : fichier suivi sur la carte et légende des couleurs
-		if (st.tracks.length > 1) {
+		if (st.tracks.length > 1 && !inst.pickMode) {
 			if (o.selectable) {
 				var sl = document.createElement('label');
 				sl.appendChild(document.createTextNode((T.follow || 'Follow') + ' :'));
@@ -128,6 +180,7 @@
 
 		var active = KEYS.filter(function (k) { return st.on[k] && st.avail[k]; });
 		st.layout = null;
+		if (!st.tracks.length) { ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.fillText((st.inst.pickMode ? T.pick : T.none) || '', w / 2, h / 2); return; }
 		if (!active.length) { ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.fillText(T.none || '', w / 2, h / 2); return; }
 
 		var rng = {}, xmax = 0;
@@ -172,7 +225,25 @@
 		st.tracks.forEach(function (t, ti) {
 			active.forEach(function (k) {
 				if (!has(t, k)) { return; }
-				var sty = styleOf(st, k), col = sty.color || trackColor(st, t, ti), pen = false, lastX = 0;
+				var sty = styleOf(st, k), col = sty.color || trackColor(st, t, ti), pen = false, lastX = 0, segCol = segmentColor(st, k, col);
+				if (segCol) {
+					// Couleur variable le long de la courbe (Trcolgraph ou Gintensity) : un petit trait par segment
+					var prev = null, fillIt = st.o.fill > 0 && k === 'h' && active.length === 1;
+					ctx.lineWidth = k === 'h' ? 2.5 : 2; ctx.setLineDash(active.length === 1 ? [] : sty.dash); ctx.lineCap = 'butt';
+					t.pts.forEach(function (p) {
+						var okp = typeof p[k] === 'number' && isFinite(p[k]);
+						if (okp && prev) {
+							var c = segCol(prev, p);
+							if (fillIt) {
+								ctx.beginPath(); ctx.moveTo(X(prev.x), Y(k, prev[k])); ctx.lineTo(X(p.x) + 0.6, Y(k, p[k])); ctx.lineTo(X(p.x) + 0.6, padT + ph); ctx.lineTo(X(prev.x), padT + ph); ctx.closePath();
+								ctx.globalAlpha = Math.min(1, st.o.fill); ctx.fillStyle = c; ctx.fill(); ctx.globalAlpha = 1;
+							}
+							ctx.beginPath(); ctx.strokeStyle = c; ctx.moveTo(X(prev.x), Y(k, prev[k])); ctx.lineTo(X(p.x), Y(k, p[k])); ctx.stroke();
+						}
+						prev = okp ? p : null;
+					});
+					return;
+				}
 				ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = k === 'h' ? 2 : 1.5; ctx.setLineDash(sty.dash);
 				t.pts.forEach(function (p) {
 					if (typeof p[k] !== 'number' || !isFinite(p[k])) { pen = false; return; }
@@ -235,5 +306,15 @@
 	}
 
 	global.addEventListener('resize', function () { all.forEach(function (st) { if (document.body.contains(st.box)) { draw(st); } }); });
-	global.GPXTMCharts = { initAll: initAll, init: init };
+	// Mode « un repère par trace » : les graphiques suivent la trace sélectionnée sur la carte
+	function refresh(inst) {
+		all.forEach(function (st) {
+			if (st.inst !== inst || !document.body.contains(st.box)) { return; }
+			st.tracks = inst.pickMode ? (inst.shown || []) : inst.tracks;
+			st.follow = -1;
+			draw(st);
+		});
+	}
+
+	global.GPXTMCharts = { initAll: initAll, init: init, refresh: refresh };
 })(window);

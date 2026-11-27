@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version      2.2.3
+ * @version      2.3.0
  * @package      GPX-TrackMap
  * @author       Perlimpinpin - https://www.perlimpinpin.fr
  * @copyright    Copyright (c) 2026 Perlimpin.fr All rights reserved
@@ -72,10 +72,10 @@ final class Gpxtm extends CMSPlugin implements SubscriberInterface
 	private const BAR = ['name' => 0, 'cmt' => 0, 'desc' => 0, 'dist' => 1, 'gain' => 1, 'alt' => 1, 'slope' => 1, 'date' => 1, 'time' => 0, 'moving' => 0, 'speed' => 0, 'speedmov' => 0, 'pace' => 0, 'pacemov' => 0, 'hr' => 1, 'cad' => 1, 'temp' => 1];
 
 	// Variables dont les valeurs texte sont ramenées en minuscules (insensibles à la casse)
-	private const LOWER_VALUES = ['Doclang', 'Unit', 'Trcolmod', 'Legende_fnm_lm', 'Shtrtabs'];
+	private const LOWER_VALUES = ['Doclang', 'Unit', 'Trcolmod', 'Trackwpt', 'Gintensity', 'Legende_fnm_lm', 'Shtrtabs'];
 
 	// Version : ajoutée à l'adresse des scripts pour que le navigateur recharge les fichiers modifiés
-	private const VERSION = '2.2.3';
+	private const VERSION = '2.3.0';
 
 	// Dossier des modèles personnalisés (hors du plugin : conservé lors des mises à jour et des réinstallations)
 	public const CUSTOM_TMPL = '/media/gpxtm/tmpl';
@@ -935,7 +935,7 @@ final class Gpxtm extends CMSPlugin implements SubscriberInterface
 					'elapsed' => 'ELAPSED', 'time' => 'TIME', 'start' => 'START', 'finish' => 'FINISH', 'hr' => 'HR', 'cad' => 'CAD', 'temp' => 'TEMP', 'coord' => 'COORD',
 					'avgspeed' => 'AVGSPEED', 'avgspeedmov' => 'AVGSPEEDMOV', 'avgpace' => 'AVGPACE', 'avgpacemov' => 'AVGPACEMOV', 'fullscreen' => 'FULLSCREEN',
 					'locate' => 'LOCATE', 'recenter' => 'RECENTER', 'consentQ' => 'CONSENT_Q', 'consentNo' => 'CONSENT_NO', 'nodata' => 'NODATA', 'nomap' => 'NOMAP',
-					'waypoints' => 'WAYPOINTS', 'zoomIn' => 'ZOOMIN', 'zoomOut' => 'ZOOMOUT'];
+					'waypoints' => 'WAYPOINTS', 'zoomIn' => 'ZOOMIN', 'zoomOut' => 'ZOOMOUT', 'showAll' => 'SHOWALL', 'pick' => 'PICK'];
 				$texts = [];
 				foreach ($keys as $jsKey => $langKey) {
 					$texts[$jsKey] = $tr("GPXTM_JS_" . $langKey);

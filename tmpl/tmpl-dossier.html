@@ -6,6 +6,9 @@
 .gpxtm-dossier td.num, .gpxtm-dossier th.num { text-align: right; white-space: nowrap; }
 .gpxtm-dossier .sw { display: inline-block; width: 1.4em; height: .5em; border-radius: 2px; vertical-align: middle; }
 .gpxtm-dossier tfoot td { font-weight: 600; }
+/* Mode Trackwpt : les lignes sont cliquables (comme les repères de la carte) */
+.gpxtm-dossier tr.pick { cursor: pointer; }
+.gpxtm-dossier tr.pick:hover, .gpxtm-dossier tr.sel { background: rgba(128,128,128,.18); }
 </style>
 
 <div id="%MAPID%gpxviewer" class="gpxtm-dossier" data-base="%GPXBASEURL%">
@@ -51,8 +54,15 @@
         head.appendChild(hr); table.appendChild(head);
 
         var body = document.createElement("tbody");
+        var inst = event.detail.instance, rows = [];
         tracks.forEach(function (t, i) {
             var tr_ = document.createElement("tr"), sw = cell("td"), span = cell("span", undefined, "sw");
+            rows.push(tr_);
+            // Mode « un repère par trace » (Trackwpt) : un clic sur la ligne affiche la trace et ses graphiques
+            if (inst && inst.pickMode) {
+                tr_.className = "pick";
+                tr_.addEventListener("click", function () { inst.select(i); });
+            }
             span.style.background = t.color || "#888";
             sw.appendChild(span); tr_.appendChild(sw);
             tr_.appendChild(cell("td", t.name || t.file || ("#" + (i + 1))));
@@ -61,6 +71,7 @@
             var td = cell("td"), a = document.createElement("a");
             a.href = base + t.file.split("/").map(encodeURIComponent).join("/");
             a.setAttribute("download", "");
+            a.addEventListener("click", function (e) { e.stopPropagation(); });
             a.textContent = t.file.split("/").pop();
             td.appendChild(a); tr_.appendChild(td);
             total += t.stats.dist; up += t.stats.gain || 0; down += t.stats.loss || 0;
@@ -79,6 +90,11 @@
 
         box.innerHTML = "";
         box.appendChild(table);
+
+        // Ligne de la trace sélectionnée sur la carte
+        mapEl.addEventListener("gpxtm:select", function (e) {
+            rows.forEach(function (r, i) { r.classList.toggle("sel", i === e.detail.index); });
+        });
     });
 })();
 </script>

@@ -262,6 +262,11 @@
 		o.twidth = num(d.twidth, 3);
 		o.topac = num(d.topac, 0.8);
 		o.trcolmod = (d.trcolmod || '').toLowerCase();
+		o.trcolgraph = bool(d.trcolgraph, false);
+		var gi = (d.gintensity || '').toLowerCase();
+		o.gint = ['h', 's', 'v'].indexOf(gi) !== -1 ? gi : (gi && ['false', '0', 'off', 'no', 'non'].indexOf(gi) === -1 ? 'own' : '');
+		o.pick = (d.trackwpt || 'off').toLowerCase();
+		o.pickname = (d.trackwptname || '').toLowerCase().trim();
 		o.rcols = (d.rcols || '#0000ff').split(',');
 		o.rwidth = num(d.rwidth, 2);
 		o.ropac = num(d.ropac, 0.7);
@@ -413,11 +418,11 @@
 
 		Promise.all(jobs).then(function (results) {
 			var ci = 0;
-			results.forEach(function (g) {
+			results.forEach(function (g, gi) {
 				if (!g) { return; }
 				if (o.tracks) { g.tracks.forEach(function (t) { t.color = o.tcols[ci % o.tcols.length].trim(); ci++; computeTrack(t); inst.tracks.push(t); }); }
 				if (o.routes) { g.routes.forEach(function (r, i) { r.color = o.rcols[i % o.rcols.length].trim(); inst.routes.push(r); }); }
-				if (o.wpts) { g.waypoints.forEach(function (w) { inst.waypoints.push(w); }); }
+				if (o.wpts) { g.waypoints.forEach(function (w) { w.file = o.files[gi]; inst.waypoints.push(w); }); }
 			});
 			if (!inst.tracks.length && !inst.routes.length && !inst.waypoints.length) { el.innerHTML = '<p class="gpxtm-refused">' + esc(tr('nodata')) + '</p>'; return; }
 			draw(inst);
@@ -446,12 +451,17 @@
 
 		// Traces
 		var all = L.featureGroup().addTo(map), groups = { tracks: [], routes: [], wpts: L.layerGroup().addTo(map) };
-		var scale = null, arrowSets = [];
+		var scale = null, arrowSets = [], wptByFile = {};
+		// Mode « un repère par trace » (variable Trackwpt) : seuls les repères sont visibles, un clic affiche la trace et ses graphiques
+		var pickMode = ['start', 'finish', 'first', 'last', 'highest', 'name'].indexOf(o.pick) !== -1 && inst.tracks.length > 0;
+		inst.pickMode = pickMode; inst.shown = null; inst.selected = -1;
+		if (pickMode) { o.legendTrk = false; o.legendWpt = false; }
 		if (o.trcolmod && ['h', 's', 'v', 'hr', 'cad', 'atemp'].indexOf(o.trcolmod) !== -1) {
 			var mn = Infinity, mx = -Infinity;
 			inst.tracks.forEach(function (t) { t.pts.forEach(function (p) { var v = p[o.trcolmod]; if (v !== undefined) { if (v < mn) { mn = v; } if (v > mx) { mx = v; } } }); });
 			if (mn < mx) { scale = { key: o.trcolmod, min: mn, max: mx }; }
 		}
+		inst.scale = scale;
 
 		inst.tracks.forEach(function (t, idx) {
 			var layer = L.featureGroup(), latlngs = t.pts.map(function (p) { return [p.lat, p.lon]; }), lines = [];
@@ -477,7 +487,7 @@
 			});
 			if (o.start) { L.marker(latlngs[0], { icon: icon('gpxtm-start', ''), title: tr('start'), keyboard: false }).bindTooltip(esc(tr('start'))).addTo(layer); }
 			if (o.finish) { L.marker(latlngs[latlngs.length - 1], { icon: icon('gpxtm-finish', ''), title: tr('finish'), keyboard: false }).bindTooltip(esc(tr('finish'))).addTo(layer); }
-			layer.addTo(all);
+			if (!pickMode) { layer.addTo(all); }
 			if (o.arrow) { arrowSets.push({ pts: latlngs, color: o.arrowcol || t.color, group: L.featureGroup().addTo(layer) }); }
 			t.layer = layer;
 			groups.tracks.push(layer);
@@ -502,7 +512,7 @@
 			if (sw.shwplatlon) { html += w.lat.toFixed(5) + ', ' + w.lon.toFixed(5); }
 			if (html) { m.bindPopup(html); }
 			if (sw.shwptooltip && w.name) { m.bindTooltip(esc(w.name)); }
-			m.addTo(groups.wpts);
+			if (pickMode) { (wptByFile[w.file] = wptByFile[w.file] || L.layerGroup()).addLayer(m); } else { m.addTo(groups.wpts); }
 		});
 
 		// Photos géolocalisées (liens <a data-geo="lat:..,lon:..">)
@@ -516,8 +526,39 @@
 			});
 		}
 
+		// Repères : un par trace, au point choisi par Trackwpt (waypoint du fichier ou point de la trace)
+		var pickMarkers = [];
+		function chosenPoint(t) {
+			var ws = inst.waypoints.filter(function (w) { return w.file === t.file; }), w = null, p = null;
+			if (o.pick === 'first') { w = ws[0]; }
+			else if (o.pick === 'last') { w = ws[ws.length - 1]; }
+			else if (o.pick === 'name') {
+				if (o.pickname) { w = ws.filter(function (x) { return (x.name || '').toLowerCase().indexOf(o.pickname) !== -1; })[0]; }
+				if (!w) { w = ws[0]; }
+			}
+			if (w) { return { lat: w.lat, lon: w.lon, wpt: w }; }
+			if (o.pick === 'finish') { p = t.pts[t.pts.length - 1]; }
+			else if (o.pick === 'highest') { t.pts.forEach(function (q) { if (q.h !== undefined && (!p || q.h > p.h)) { p = q; } }); }
+			p = p || t.pts[0];
+			return { lat: p.lat, lon: p.lon, wpt: null };
+		}
+		if (pickMode) {
+			inst.tracks.forEach(function (t, i) {
+				var c = chosenPoint(t), nm = t.name || t.file || ('#' + (i + 1));
+				var m = L.marker([c.lat, c.lon], { icon: c.wpt ? wptIcon(c.wpt, o.defaulticon) : pin(t.color), keyboard: true, title: nm });
+				m.bindTooltip(esc((c.wpt && c.wpt.name ? c.wpt.name + ' \u00b7 ' : '') + nm));
+				m.on('click', function () { inst.select(i); });
+				m.addTo(all);
+				pickMarkers.push(m);
+			});
+		}
+
 		// Vue initiale
 		function fit() {
+			if (inst.selected >= 0) {
+				var sb = inst.tracks[inst.selected].layer.getBounds();
+				if (sb.isValid()) { map.fitBounds(sb, { padding: [20, 20], animate: false }); return; }
+			}
 			if (o.center && isFinite(o.center[0]) && isFinite(o.center[1])) {
 				var r = (o.center[2] || 1) * 1000;
 				map.fitBounds(L.latLng(o.center[0], o.center[1]).toBounds(r * 2), { animate: false });
@@ -525,7 +566,7 @@
 			}
 			var b = all.getBounds();
 			if (!b.isValid() && groups.wpts.getLayers().length) { b = L.featureGroup(groups.wpts.getLayers()).getBounds(); }
-			if (b.isValid()) { map.fitBounds(b, { padding: [20, 20], animate: false }); } else { map.setView([46.6, 2.4], 5); }
+			if (b.isValid()) { map.fitBounds(b, pickMode ? { paddingTopLeft: [30, 50], paddingBottomRight: [30, 30], animate: false } : { padding: [20, 20], animate: false }); } else { map.setView([46.6, 2.4], 5); }
 		}
 		fit();
 		inst.fit = fit;
@@ -550,6 +591,54 @@
 		}
 		if (arrowSets.length) { map.on('zoomend', drawArrows); drawArrows(); }
 
+		// Sélection d'une trace (mode Trackwpt) : trace + waypoints de son fichier + graphiques ; le bouton du coin ramène à tous les repères
+		var cbar = null, selWpts = null, pickBar = null;
+		function setColourBar(on) {
+			if (!scale) { return; }
+			if (on && !cbar) { cbar = colourBar(map, scale); } else if (!on && cbar) { cbar.remove(); cbar = null; }
+		}
+		function updatePickBar() {
+			if (!pickBar) { return; }
+			var t = inst.selected >= 0 ? inst.tracks[inst.selected] : null;
+			pickBar.box.style.display = t ? '' : 'none';
+			if (t) { pickBar.a.textContent = '\u2715 ' + tr('showAll', 'All tracks') + ' \u2014 ' + (t.name || t.file || ''); }
+		}
+		inst.select = function (i) {
+			if (!pickMode) { return; }
+			if (inst.selected >= 0) { inst.tracks[inst.selected].layer.remove(); }
+			if (selWpts) { selWpts.remove(); selWpts = null; }
+			if (inst.hideMarker) { inst.hideMarker(); }
+			inst.selected = i;
+			inst.shown = i >= 0 ? [inst.tracks[i]] : null;
+			if (i >= 0) {
+				var t = inst.tracks[i];
+				t.layer.addTo(map);
+				selWpts = wptByFile[t.file] || null;
+				if (selWpts) { selWpts.addTo(map); }
+			}
+			pickMarkers.forEach(function (m, k) { var e = m.getElement(); if (e) { e.classList.toggle('gpxtm-sel', k === i); } });
+			setColourBar(i >= 0);
+			updatePickBar();
+			fit();
+			if (global.GPXTMCharts) { global.GPXTMCharts.refresh(inst); }
+			el.dispatchEvent(new CustomEvent('gpxtm:select', { bubbles: true, detail: { index: i, track: i >= 0 ? inst.tracks[i] : null, instance: inst } }));
+		};
+		inst.clear = function () { inst.select(-1); };
+		if (pickMode) {
+			var PickCtl = L.Control.extend({
+				options: { position: 'bottomright' },
+				onAdd: function () {
+					var box = L.DomUtil.create('div', 'gpxtm-pickbar'), a = L.DomUtil.create('a', '', box);
+					box.style.display = 'none'; a.href = '#'; a.setAttribute('role', 'button');
+					L.DomEvent.disableClickPropagation(box);
+					L.DomEvent.on(a, 'click', function (e) { L.DomEvent.preventDefault(e); inst.clear(); });
+					pickBar = { box: box, a: a };
+					return box;
+				}
+			});
+			new PickCtl().addTo(map);
+		}
+
 		// Boutons
 		if (o.fullscreen) { fullscreenControl(map, el); }
 		if (o.recenter) {
@@ -571,7 +660,7 @@
 		if (o.legend) { legend(inst, map, groups, o); }
 
 		// Barre de couleurs (variable Trcolmod)
-		if (scale) { colourBar(map, scale); }
+		if (scale && !pickMode) { setColourBar(true); }
 
 		// Marqueur de suivi (graphiques)
 		var follow = null;
@@ -632,7 +721,7 @@
 				return box;
 			}
 		});
-		new Ctl().addTo(map);
+		return new Ctl().addTo(map);
 	}
 
 	// ---------------------------------------------------------------------------------------------

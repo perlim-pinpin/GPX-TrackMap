@@ -83,10 +83,10 @@ class InfoField extends FormField
 				return '<div class="gpxtm-info">' . self::icons() . '</div>';
 
 			case 'tmpl_cote_doc':
-				return '<div class="gpxtm-info">' . self::doc('GPXTM_TC', 5) . '</div>';
+				return '<div class="gpxtm-info">' . self::doc('GPXTM_TC', 8) . '</div>';
 
 			case 'tmpl_dossier_doc':
-				return '<div class="gpxtm-info">' . self::doc('GPXTM_TD', 3) . '</div>';
+				return '<div class="gpxtm-info">' . self::doc('GPXTM_TD', 7) . '</div>';
 
 			case 'photos_doc':
 				return '<div class="gpxtm-info">' . self::doc('GPXTM_PH', 3) . '</div>';

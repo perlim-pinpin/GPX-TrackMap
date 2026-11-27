@@ -10,6 +10,8 @@ Plugin de contenu pour **Joomla 6** : affiche des traces GPX sur une carte inter
 - Traces, routes et waypoints, avec icônes de waypoints
 - Couleur de la trace selon l'altitude, la pente, la vitesse, la fréquence cardiaque, la cadence ou la température, avec barre de dégradé
 - Flèches de direction sur les traces
+- Dossier de GPX : un repère par trace (départ, arrivée, sommet ou waypoint au choix) ; un clic affiche la trace et ses graphiques
+- Couleurs de la trace reprises sur les graphiques, et intensité de la couleur selon les données
 - Graphiques d'altitude, de pente et de vitesse liés à la carte (le pointeur déplace un marqueur sur la carte)
 - Photos géolocalisées
 - Plein écran, recentrage, localisation
@@ -49,7 +51,8 @@ Les réglages se placent après le nom du fichier, séparés par des points-virg
 
 - `Template=tmpl0.html` : carte avec le profil d'altitude dessous.
 - `Arrowtrack=true` : flèches de direction (`Arrowtrackcol=#ffffff` pour la couleur, `Arrowsymbol=➤` pour le symbole).
-- `Trcolmod=h` : couleur de la trace selon l'altitude (autres valeurs : `s` pente, `v` vitesse, `hr` fréquence cardiaque, `cad` cadence, `atemp` température).
+- `Trcolmod=h` : couleur de la trace selon l'altitude (autres valeurs : `s` pente, `v` vitesse, `hr` fréquence cardiaque, `cad` cadence, `atemp` température). `Trcolgraph=true` applique les mêmes couleurs aux graphiques ; `Gintensity=true` fait varier l'intensité de la couleur des graphiques selon les données.
+- `Trackwpt=start` (avec `Template=tmpl-dossier.html` et un dossier) : un repère par fichier ; autres choix : `finish`, `highest`, `first`, `last`, `name` (avec `Trackwptname=sommet`).
 
 La liste complète des variables et des modèles est dans l'onglet **Variables** de l'administration.
 
@@ -83,6 +86,8 @@ Content plugin for **Joomla 6** that displays GPX tracks on an interactive [Leaf
 - Tracks, routes and waypoints, with waypoint icons
 - Track colour by elevation, slope, speed, heart rate, cadence or temperature, with a gradient bar
 - Direction arrows on tracks
+- Folder of GPX files: one marker per track (start, finish, summit or a chosen waypoint); a click shows the track and its charts
+- Track colours repeated on the charts, and colour intensity following the data
 - Elevation, slope and speed charts linked to the map (the pointer moves a marker on the map)
 - Geotagged photos
 - Full screen, recentre and locate buttons
@@ -122,7 +127,8 @@ Settings follow the file name, separated by semicolons:
 
 - `Template=tmpl0.html`: map with the elevation profile below.
 - `Arrowtrack=true`: direction arrows (`Arrowtrackcol=#ffffff` for the colour, `Arrowsymbol=➤` for the symbol).
-- `Trcolmod=h`: track coloured by elevation (other values: `s` slope, `v` speed, `hr` heart rate, `cad` cadence, `atemp` temperature).
+- `Trcolmod=h`: track coloured by elevation (other values: `s` slope, `v` speed, `hr` heart rate, `cad` cadence, `atemp` temperature). `Trcolgraph=true` applies the same colours to the charts; `Gintensity=true` varies the colour intensity of the charts with the data.
+- `Trackwpt=start` (with `Template=tmpl-dossier.html` and a folder): one marker per file; other choices: `finish`, `highest`, `first`, `last`, `name` (with `Trackwptname=summit`).
 
 The full list of variables and templates is in the **Variables** tab of the administration.
 

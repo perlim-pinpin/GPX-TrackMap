@@ -48,7 +48,7 @@ final class Variables
 		'trackover', 'trackclick', 'shtrname', 'shtrcmt', 'shtrdesc', 'shtrx', 'shtrt', 'shtrtwob', 'shtrh', 'shtrrr', 'shtrs', 'shtrv', 'shtrpace',
 		'shtrhr', 'shtrcad', 'shtratemp', 'shtrlatlon', 'shtrtges', 'shtrtgeswob', 'shtrvmitt', 'shtrvmittwob', 'shtrvmittpace', 'shtrvmittpacewob',
 		'shwpname', 'shwptooltip', 'shwpcmt', 'shwpdesc', 'shwptime', 'shwplatlon',
-		'arrowtrack', 'arrowtrackcol', 'arrowsymbol', 'tcols', 'twidth', 'topac', 'trcolmod', 'shtrstart', 'shtrziel', 'rcols', 'rwidth', 'ropac',
+		'arrowtrack', 'arrowtrackcol', 'arrowsymbol', 'tcols', 'twidth', 'topac', 'trcolmod', 'trcolgraph', 'gintensity', 'trackwpt', 'trackwptname', 'shtrstart', 'shtrziel', 'rcols', 'rwidth', 'ropac',
 		'defaulticon', 'gpxtracks', 'gpxrouten', 'gpxwegpunkte', 'bildpfad', 'gpxpfad', 'groesseminibild',
 	];
 
@@ -296,7 +296,11 @@ final class Variables
 					['js', 'Tcols', 'str', '"#ff0000,#00ff00,#0000ff,#eeee00,#ff00ff,#00ffff,#000000"', 'Couleurs des traces (codes #rrggbb séparés par des virgules)', null, null],
 					['js', 'Twidth', 'num', '2', 'Épaisseur de la ligne des traces', null, null],
 					['js', 'Topac', 'num', '0.8', 'Opacité de la couleur des traces (0 à 1)', null, null],
-					['js', 'Trcolmod', 'str', '""', 'Colore la trace selon l’altitude (h), la pente (s), la vitesse (v), la cadence (cad) ou la fréquence cardiaque (hr)', ['""', '"h"', '"s"', '"v"', '"hr"', '"cad"'], null],
+					['js', 'Trcolmod', 'str', '""', 'Colore la trace selon l’altitude (h), la pente (s), la vitesse (v), la cadence (cad), la fréquence cardiaque (hr) ou la température (atemp)', ['""', '"h"', '"s"', '"v"', '"hr"', '"cad"', '"atemp"'], null],
+					['js', 'Trcolgraph', 'bool', 'false', 'Colore aussi les graphiques avec l’échelle de Trcolmod (la courbe prend, en chaque point, la couleur de la valeur choisie)', null, null],
+					['js', 'Gintensity', 'str', '""', 'Intensité de la couleur des graphiques selon les données : couleur claire pour les valeurs faibles, de plus en plus intense pour les fortes. true = selon la courbe elle-même ; h, s ou v = selon l’altitude, la pente ou la vitesse', ['""', '"true"', '"h"', '"s"', '"v"'], null],
+					['js', 'Trackwpt', 'str', '"off"', 'Mode « un repère par trace » (dossier de GPX) : seul un repère par fichier est affiché ; un clic sur le repère affiche la trace et ses graphiques. Choix du repère : start (départ), finish (arrivée), highest (point culminant), first ou last (premier ou dernier waypoint du fichier), name (waypoint dont le nom contient Trackwptname)', ['"off"', '"start"', '"finish"', '"highest"', '"first"', '"last"', '"name"'], null],
+					['js', 'Trackwptname', 'str', '""', 'Avec Trackwpt=name : texte cherché dans le nom des waypoints de chaque fichier (sans tenir compte des majuscules) ; à défaut, le premier waypoint du fichier, puis le départ', null, null],
 					['js', 'Arrowtrack', 'bool', 'false', 'Affiche sur la trace une flèche qui indique le sens du déplacement', null, null],
 					['js', 'Arrowtrackcol', 'str', '""', 'Couleur de la flèche ; si vide, la couleur de la trace est utilisée', null, null],
 					['js', 'Arrowsymbol', 'str', '"➤"', 'Symbole de la flèche, pour les traces et les routes', null, null],
